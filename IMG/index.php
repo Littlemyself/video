@@ -1,29 +1,30 @@
+/* img.txt 文件里面编写从又拍云获取的路径 要求所有图片的路径 一行一个*/
+/* random.php 文件中的代码如下 复制粘贴即可 */
 <?php
-/**
- * Typecho Blog Platform
- *
- * @copyright  Copyright (c) 2008 Typecho team (http://www.typecho.org)
- * @license    GNU General Public License 2.0
- * @version    $Id: index.php 1153 2009-07-02 10:53:22Z magike.net $
- */
- 
- /*添加Gzip*/
- /*ob_start('ob_gzhandler');*/
-
-/** 载入配置支持 */
-if (!defined('__TYPECHO_ROOT_DIR__') && !@include_once 'config.inc.php') {
-    file_exists('./install.php') ? header('Location: install.php') : print('Missing Config File');
-    exit;
+//存有美图链接的文件名img.txt
+$filename = "img.txt";
+if(!file_exists($filename)){
+    die('文件不存在');
 }
-
-/** 初始化组件 */
-Typecho_Widget::widget('Widget_Init');
-
-/** 注册一个初始化插件 */
-Typecho_Plugin::factory('index.php')->begin();
-
-/** 开始路由分发 */
-Typecho_Router::dispatch();
-
-/** 注册一个结束插件 */
-Typecho_Plugin::factory('index.php')->end();
+//从文本获取链接
+$pics = [];
+$fs = fopen($filename, "r");
+while(!feof($fs)){
+    $line=trim(fgets($fs));
+    if($line!=''){
+        array_push($pics, $line);
+    }
+} 
+//从数组随机获取链接
+$pic = $pics[array_rand($pics)]; 
+//返回指定格式
+$type=$_GET['type'];
+switch($type){
+//JSON返回
+case 'json':
+    header('Content-type:text/json');
+    die(json_encode(['pic'=>$pic]));
+default:
+    die(header("Location: $pic"));
+}
+?>
